@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mouse Clicks Test</title>
+    <meta name="description"
+        content="Mouse Clicks Test helps detect faulty mouse buttons by logging your clicks to identify extra or bouncing clicks." />
+
+    <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Mouse Clicks Test",
+    "url": "https://github.com/fday/mouse-clicks-test",
+    "description": "Mouse helps detect extra or bouncing mouse clicks.",
+    "applicationCategory": "Utilities",
+    "operatingSystem": "Web-based",
+    "author": {
+      "@type": "Person",
+      "name": "fday"
+    }
+  }
+  </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 5vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 0.25em;
+            text-align: center;
+        }
+
+        p {
+            margin-top: 0;
+            color: #555;
+            max-width: 600px;
+            text-align: center;
+            margin-bottom: 1.5em;
+        }
+
+        #output {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 90vw;
+            min-width: 300px;
+            height: 320px;
+            overflow-y: auto;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            user-select: none;
+            margin: 0 auto;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            border-left: 5px solid transparent;
+            background-color: #fafafa;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .fast-click {
+            color: #d8000c;
+            font-weight: bold;
+        }
+
+        .left {
+            border-color: #2196F3;
+        }
+
+        .right {
+            border-color: #4CAF50;
+        }
+
+        .other {
+            border-color: #FF9800;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #999;
+            user-select: text;
+            text-align: center;
+        }
+
+        footer a {
+            color: #555;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        #output {
+            cursor: default;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #resetBtn {
+            padding: 10px 20px;
+            background-color: #3f8efc;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #resetBtn:hover {
+            background-color: #256ddb;
+            /* Darker blue on hover */
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Mouse Clicks Test</h1>
+    <p>Click anywhere on the page. This tool logs left, right, and other mouse clicks, highlighting fast clicks (under 1
+        second) in red to help detect extra or bouncing mouse button issues.</p>
+
+    <div id="output" aria-live="polite" aria-atomic="false" role="log" aria-relevant="additions"></div>
+
+
+    <div class="button-container">
+        <button id="resetBtn">Reset</button>
+    </div>
+
+    <footer>
+        <p>2025 fday (<a href="https://github.com/fday/mouse-clicks-test" target="_blank" rel="noopener noreferrer">see
+                on GitHub</a>)</p>
+    </footer>
+
+    <script>
+        const lastClickTimes = {
+            left: null,
+            right: null,
+            other: null
+        };
+
+        const outputDiv = document.getElementById('output');
+        outputDiv.innerHTML = '';
+
+        document.addEventListener('mousedown', (event) => {
+            const currentTime = Date.now();
+            let buttonType, key;
+
+            switch (event.button) {
+                case 0:
+                    buttonType = 'Left';
+                    key = 'left';
+                    break;
+                case 2:
+                    buttonType = 'Right';
+                    key = 'right';
+                    break;
+                default:
+                    buttonType = 'Other';
+                    key = 'other';
+            }
+
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${key}`;
+
+            let message;
+            if (lastClickTimes[key] !== null) {
+                const duration = currentTime - lastClickTimes[key];
+                message = `${buttonType} click — ${duration} ms since last ${buttonType.toLowerCase()} click`;
+
+                if (duration < 1000) {
+                    logEntry.classList.add('fast-click');
+                }
+            } else {
+                message = `${buttonType} click — First ${buttonType.toLowerCase()} click`;
+            }
+
+            logEntry.textContent = message;
+
+            // Insert newest at the top
+            outputDiv.insertBefore(logEntry, outputDiv.firstChild);
+
+            lastClickTimes[key] = currentTime;
+        });
+
+        document.addEventListener('contextmenu', (event) => event.preventDefault());
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            // Clear output log
+            outputDiv.innerHTML = '';
+
+            // Reset click times
+            lastClickTimes.left = null;
+            lastClickTimes.right = null;
+            lastClickTimes.other = null;
+        });
+    </script>
+
+</body>
+
+</html>
